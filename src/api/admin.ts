@@ -107,3 +107,22 @@ export async function ejectUSB(): Promise<boolean> {
     const response = await api.put<boolean>("admin/data/ejectUSB");
     return response.data;
 }
+
+// Fetch paginated users. Backend is expected to accept query params: page, page_size, search
+export async function getUsers(
+    page: number,
+    pageSize: number,
+    search?: string
+): Promise<{ users: UserData[]; total: number }> {
+    const params = new URLSearchParams();
+    params.append("page", String(page));
+    params.append("page_size", String(pageSize));
+    if (search) params.append("search", search);
+
+    console.log("Fetching users with params:", params.toString());
+    const response = await api.get<{ users: UserData[]; total: number }>(
+        `/admin/users?${params.toString()}`
+    );
+
+    return response.data;
+}
