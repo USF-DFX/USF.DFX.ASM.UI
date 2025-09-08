@@ -121,7 +121,7 @@ export async function getUsers(
 
     console.log("Fetching users with params:", params.toString());
     const response = await api.get<{ users: UserData[]; total: number }>(
-        `/admin/users?${params.toString()}`
+        `/admin/users/getUsers/${search}/${page}/${pageSize}`
     );
 
     return response.data;
