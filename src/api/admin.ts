@@ -57,6 +57,19 @@ export async function setExecutiveAccess(userId: number): Promise<boolean> {
     }
 }
 
+export async function setAdmin(userId: number): Promise<boolean> {
+    try {
+        const response = await api.put<{ success: boolean }>(
+            `/admin/users/setAdmin/${userId}`
+        );
+
+        return response.data.success;
+    } catch (error) {
+        console.error("Error setting admin status for user");
+        throw new Error("Failed to update user admin status. Try again.");
+    }
+}
+
 export async function addWeeklyMinutes(
     userId: number,
     minutes: number

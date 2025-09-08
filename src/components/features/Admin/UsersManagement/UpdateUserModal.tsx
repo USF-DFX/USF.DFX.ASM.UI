@@ -1,6 +1,7 @@
 import {
     addWeeklyMinutes,
     getUserData,
+    setAdmin,
     setBanTime,
     setExecutiveAccess,
     setTrained,
@@ -139,6 +140,20 @@ export default function UpdateUserModal() {
             },
         });
 
+    const { isPending: adminPending, mutate: setUserAdmin } =
+        useMutation({
+            mutationFn: () => setAdmin(user.id),
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ["users"] });
+                refetchUsers();
+                showSuccessToast("Success", "User executive access updated");
+            },
+            onError: (error) => {
+                showErrorToast("Error", error.message);
+                setCardInput("");
+            },
+        });
+
     const { isPending: updatePrintTimePending, mutate: updateUserPrintTime } =
         useMutation({
             mutationFn: (totalMinutes: number) =>
@@ -221,6 +236,11 @@ export default function UpdateUserModal() {
     const handleExecutiveAccess = () => {
         console.log("Update user info:", user?.id);
         setUserExecutive();
+    };
+
+    const handleAdmin = () => {
+        console.log("Update user info:", user?.id);
+        setUserAdmin();
     };
 
     const handleBanUser = () => {
@@ -554,6 +574,18 @@ export default function UpdateUserModal() {
                                                             <span>
                                                                 Grant Executive
                                                                 Access
+                                                            </span>
+                                                        </DropdownMenuItem>
+
+                                                        <DropdownMenuItem
+                                                            onClick={
+                                                                handleAdmin
+                                                            }
+                                                            className="text-white hover:bg-gray-700 cursor-pointer py-4 px-4 text-lg"
+                                                        >
+                                                            <Shield className="h-8 w-8 text-purple-500" />
+                                                            <span>
+                                                                Toggle Admin
                                                             </span>
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
