@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { formatName } from "@/lib/format-name";
 import { UserData } from "@/types/UserData";
 
+
 export function UsersManagement() {
     // Pagination & search state
     const [page, setPage] = useState<number>(1);
@@ -25,10 +26,16 @@ export function UsersManagement() {
     const total = typedData?.total ?? 0;
     const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
+    const OpenUpdateModal = (user : UserData) => {
+        console.log('Button clicked!');
+    };
+
     useEffect(() => {
         // reset to first page when search changes
         setPage(1);
     }, [search]);
+
+
     return (
         <div className="space-y-6">
             <div className="p-6 bg-gray-800 rounded-lg">
@@ -78,7 +85,7 @@ export function UsersManagement() {
                             </TableHeader>
                             <TableBody>
                                 {users.map((u) => (
-                                    <TableRow key={u.id} className="hover:bg-gray-700">
+                                    <TableRow key={u.id} className="hover:bg-gray-700" onClick={() => OpenUpdateModal(u)} >
                                         <TableCell className="py-4 px-6">{u.id}</TableCell>
                                         <TableCell className="py-4 px-6">{formatName(u.username)}</TableCell>
                                         <TableCell className="py-4 px-6">{u.trained ? "Yes" : "No"}</TableCell>
