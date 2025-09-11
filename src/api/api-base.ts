@@ -9,7 +9,7 @@ interface ExtendedAxiosRequestConfig extends InternalAxiosRequestConfig {
 let inMemoryToken: string | null = null;
 
 export const api = axios.create({
-    baseURL: "http://localhost:3002/api",
+    baseURL: "http://localhost:3000/api",
     headers: {
         "Content-Type": "application/json",
     },

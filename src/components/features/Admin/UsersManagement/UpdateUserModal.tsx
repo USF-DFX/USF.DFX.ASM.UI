@@ -1,5 +1,6 @@
 import {
     addWeeklyMinutes,
+    getUserById,
     getUserData,
     setAdmin,
     setBanTime,
@@ -58,17 +59,117 @@ import {
 } from "@/components/ui/tooltip";
 import { formatName } from "@/lib/format-name";
 
-export default function UpdateUserModal() {
+export function UserUpdateModalController({
+    triggerElement
+}) {
+    const [cardInput, setCardInput] = useState("");
     const [open, setOpen] = useState(false);
+
+    const {
+        data: user,
+        isLoading,
+        refetch: refetchUsers,
+        error: queryError,
+    } = useQuery({
+        queryKey: ["users"],
+        queryFn: () => getUserData(cardInput),
+        enabled: false,
+        retry: false,
+    });
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (!open) {
+            queryClient.removeQueries({ queryKey: ["users"] });
+        }
+        
+    }, [open])
+
+    return (
+        <UpdateUserModalContent
+            user={user ?? null}
+            isLoading={isLoading}
+            refetchUsers={refetchUsers}
+            queryError={queryError}
+            cardInput={cardInput}
+            setCardInput={setCardInput}
+            triggerElement={triggerElement}
+            open={open}
+            setOpen={setOpen}
+            queryClient={queryClient}
+        />
+    )
+}
+
+export function SingleUserUpdateModalController({
+    userId, open, setOpen
+}) {
+    const {
+        data: user,
+        isLoading,
+        refetch: refetchUsers,
+        error: queryError,
+    } = useQuery({
+        queryKey: ["users"],
+        queryFn: () => getUserById(userId),
+        enabled: true,
+        retry: false,
+    });
+    const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (open) {
+            refetchUsers();
+            console.log('SingleUserUpdate');
+        } else {
+            queryClient.removeQueries({ queryKey: ["users"] });
+        }
+    }, [open])
+
+    return (
+        <UpdateUserModalContent
+            user={user ?? null}
+            isLoading={isLoading}
+            refetchUsers={refetchUsers}
+            queryError={queryError}
+            open={open}
+            setOpen={setOpen}
+            queryClient={queryClient}
+        />
+    )
+}
+
+interface UpdateUserModalContentProps {
+    user: any;
+    isLoading: boolean;
+    refetchUsers: () => Promise<any>;
+    queryError: unknown;
+    cardInput?: string;
+    setCardInput?: (value: string) => void;
+    triggerElement?: React.ReactNode;
+}
+
+interface UpdateUserModalContentProps {
+    user: any;
+    isLoading: boolean;
+    refetchUsers: () => Promise<any>;
+    queryError: unknown;
+    open: boolean;
+    setOpen: (value: boolean) => void;
+    cardInput?: string;
+    setCardInput?: (value: string) => void;
+    triggerElement?: React.ReactNode;
+    queryClient: any;
+}
+
+function UpdateUserModalContent({user, isLoading, refetchUsers, queryError, cardInput, setCardInput, triggerElement, open, setOpen, queryClient}: UpdateUserModalContentProps) {
     const [openUpdateTimeModal, setOpenUpdateTimeModal] = useState(false);
     const [openBanModal, setOpenBanModal] = useState(false);
     const [banTimeState, setBanTimeState] = useState<number>(0);
     const [openBanTooltip, setOpenBanTooltip] = useState(false);
     const [banDurationText, setBanDurationText] =
         useState<string>("Select Duration");
-    const [cardInput, setCardInput] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const queryClient = useQueryClient();
     const inputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -101,17 +202,12 @@ export default function UpdateUserModal() {
         return `Unbanned on ${banDate.toLocaleDateString()} at ${banDate.toLocaleTimeString()}`;
     };
 
-    const {
-        data: user,
-        isLoading,
-        refetch: refetchUsers,
-        error: queryError,
-    } = useQuery({
-        queryKey: ["users"],
-        queryFn: () => getUserData(cardInput),
-        enabled: false,
-        retry: false,
-    });
+    const handleMutationError = (error: unknown) => {
+        showErrorToast("Error", (error as Error).message);
+        if (cardInput && setCardInput) {
+            setCardInput("");
+        }
+    };
 
     const { isPending: trainedPending, mutate: setUserTrained } = useMutation({
         mutationFn: () => setTrained(user.id),
@@ -121,8 +217,7 @@ export default function UpdateUserModal() {
             showSuccessToast("Success", "User trained status updated");
         },
         onError: (error) => {
-            showErrorToast("Error", error.message);
-            setCardInput("");
+            handleMutationError(error);
         },
     });
 
@@ -135,8 +230,7 @@ export default function UpdateUserModal() {
                 showSuccessToast("Success", "User executive access updated");
             },
             onError: (error) => {
-                showErrorToast("Error", error.message);
-                setCardInput("");
+                handleMutationError(error);
             },
         });
 
@@ -149,8 +243,7 @@ export default function UpdateUserModal() {
                 showSuccessToast("Success", "User executive access updated");
             },
             onError: (error) => {
-                showErrorToast("Error", error.message);
-                setCardInput("");
+                handleMutationError(error);
             },
         });
 
@@ -200,8 +293,10 @@ export default function UpdateUserModal() {
     }, [queryError]);
 
     const handleCardInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setCardInput(e.target.value);
         setError(null);
+        if (setCardInput) {
+            setCardInput(e.target.value);
+        }
     };
 
     const handleUserUpdate = async () => {
@@ -315,15 +410,7 @@ export default function UpdateUserModal() {
         <>
             <Dialog open={open} onOpenChange={handleOpenChange}>
                 <DialogTrigger asChild>
-                    <Button
-                        variant="default"
-                        className="h-16 flex-1 bg-purple-600 hover:bg-purple-700 text-xl"
-                    >
-                        <div className="flex items-center gap-2">
-                            <UserCog className="!w-8 !h-8" />
-                            <span>Update User</span>
-                        </div>
-                    </Button>
+                    {triggerElement}
                 </DialogTrigger>
                 <DialogContent className="max-w-[90vw] w-[90vw] bg-gray-800 p-6">
                     <DialogHeader>
@@ -333,7 +420,7 @@ export default function UpdateUserModal() {
                                 : "Update User"}
                         </DialogTitle>
                     </DialogHeader>
-
+                    
                     <Input
                         ref={inputRef}
                         type="password"
@@ -613,6 +700,7 @@ export default function UpdateUserModal() {
                     </div>
                 </DialogContent>
             </Dialog>
+
             <div className="flex flex-col items-center space-y-6">
                 {savedTime && (
                     <div className="text-3xl font-bold p-6 bg-white rounded-lg shadow-md">

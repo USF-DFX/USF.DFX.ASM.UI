@@ -19,7 +19,7 @@ function App() {
                 <TimeSettingsProvider>
                     <CustomToaster />
                     <BrowserRouter>
-                        <IdleTimerProvider>
+                        {/* <IdleTimerProvider> */}
                             <Routes>
                                 <Route path="/" element={<LandingPage />} />
                                 <Route path="/Home" element={<HomePage />} />
@@ -32,8 +32,8 @@ function App() {
                                     }
                                 />
                             </Routes>
-                            <IdleWarningModal />
-                        </IdleTimerProvider>
+                            {/* <IdleWarningModal /> */}
+                        {/* </IdleTimerProvider> */}
                     </BrowserRouter>
                 </TimeSettingsProvider>
             </AuthProvider>

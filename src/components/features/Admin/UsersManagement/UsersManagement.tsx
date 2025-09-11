@@ -1,5 +1,5 @@
 import { CreateNewUserModal } from "./CreateNewUserModal";
-import UpdateUserModal from "./UpdateUserModal";
+import { SingleUserUpdateModalController, UserUpdateModalController } from "./UpdateUserModal";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getUsers } from "@/api/admin";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { formatName } from "@/lib/format-name";
 import { UserData } from "@/types/UserData";
 
+import { UserCog } from "lucide-react";
 
 export function UsersManagement() {
     // Pagination & search state
@@ -35,8 +36,23 @@ export function UsersManagement() {
         setPage(1);
     }, [search]);
 
+    const [singleUserUpdateOpen, setSingleUserUpdateOpen] = useState(false);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+    
+    const handleUserRowClick = (userId: number) => {
+        console.log('Row clicked for userId:', userId);
+        setSelectedUserId(userId);
+        setSingleUserUpdateOpen(true);
+    }
 
     return (
+        <>
+        <SingleUserUpdateModalController
+            userId={selectedUserId}
+            open={singleUserUpdateOpen}
+            setOpen={setSingleUserUpdateOpen}
+        />
+
         <div className="space-y-6">
             <div className="p-6 bg-gray-800 rounded-lg">
                 <h2 className="mb-4 text-2xl font-bold text-white">
@@ -50,7 +66,15 @@ export function UsersManagement() {
             <div className="flex flex-row justify-center items-center gap-1">
                 <CreateNewUserModal />
 
-                <UpdateUserModal />
+                <UserUpdateModalController triggerElement={<Button
+                        variant="default"
+                        className="h-16 flex-1 bg-purple-600 hover:bg-purple-700 text-xl"
+                    >
+                        <div className="flex items-center gap-2">
+                            <UserCog className="!w-8 !h-8" />
+                            <span>Update User</span>
+                        </div>
+                    </Button>}/>
             </div>
 
             <div className="mt-4 p-4 bg-gray-800 rounded-lg">
@@ -85,7 +109,7 @@ export function UsersManagement() {
                             </TableHeader>
                             <TableBody>
                                 {users.map((u) => (
-                                    <TableRow key={u.id} className="hover:bg-gray-700" onClick={() => OpenUpdateModal(u)} >
+                                    <TableRow key={u.id} className="hover:bg-gray-700" onClick={() => handleUserRowClick(u.id)} >
                                         <TableCell className="py-4 px-6">{u.id}</TableCell>
                                         <TableCell className="py-4 px-6">{formatName(u.username)}</TableCell>
                                         <TableCell className="py-4 px-6">{u.trained ? "Yes" : "No"}</TableCell>
@@ -109,5 +133,7 @@ export function UsersManagement() {
 
 
         </div>
+        </>
+
     );
 }

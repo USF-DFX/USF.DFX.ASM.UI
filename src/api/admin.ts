@@ -8,6 +8,11 @@ export async function getUserData(scannerMessage: string): Promise<UserData> {
     return response.data;
 }
 
+export async function getUserById(userId: number): Promise<UserData> {
+    const response = await api.get<UserData>(`/admin/users/getUserById/${userId}`);
+    return response.data;
+}
+
 export async function createUser(
     scanner_message: string,
     trained: boolean,
