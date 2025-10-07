@@ -110,11 +110,11 @@ export function UsersManagement() {
                             <TableBody>
                                 {users.map((u) => (
                                     <TableRow key={u.id} className="hover:bg-gray-700" onClick={() => handleUserRowClick(u.id)} >
-                                        <TableCell className="py-4 px-6">{u.id}</TableCell>
-                                        <TableCell className="py-4 px-6">{formatName(u.username)}</TableCell>
-                                        <TableCell className="py-4 px-6">{u.trained ? "Yes" : "No"}</TableCell>
-                                        <TableCell className="py-4 px-6">{u.admin ? "Yes" : "No"}</TableCell>
-                                        <TableCell className="py-4 px-6">{u.weekly_minutes}</TableCell>
+                                        <TableCell className="py-4 px-6 text-white">{u.id}</TableCell>
+                                        <TableCell className="py-4 px-6 text-white">{formatName(u.username)}</TableCell>
+                                        <TableCell className="py-4 px-6 text-white">{u.trained ? "Yes" : "No"}</TableCell>
+                                        <TableCell className="py-4 px-6 text-white">{u.admin ? "Yes" : "No"}</TableCell>
+                                        <TableCell className="py-4 px-6 text-white">{u.weekly_minutes}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
