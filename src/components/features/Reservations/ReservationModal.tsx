@@ -98,9 +98,17 @@ export function ReservationModal({
     const isInsufficient = timeRemaining < 0;
 
     // Convert slider value (in 15-min increments) to minutes
-    const handleSliderChange = (value: number[]) => {
+    const handleSliderChange = (value: number) => {
         // Each step is 15 minutes
-        setMinutes(value[0] * 15);
+        if (minutes + value < 0) {
+            setMinutes(0);
+            return;
+        }
+        if (minutes + value > userWeeklyMinutes) {
+            setMinutes(userWeeklyMinutes);
+            return;
+        }
+        setMinutes(minutes + value);
     };
 
     const formatTimeDisplay = (mins: number): string => {
@@ -110,9 +118,8 @@ export function ReservationModal({
         if (remainingMins === 0) {
             return `${hours} hour${hours !== 1 ? "s" : ""}`;
         } else {
-            return `${hours} hour${
-                hours !== 1 ? "s" : ""
-            } ${remainingMins} min${remainingMins !== 1 ? "s" : ""}`;
+            return `${hours} hour${hours !== 1 ? "s" : ""
+                } ${remainingMins} min${remainingMins !== 1 ? "s" : ""}`;
         }
     };
 
@@ -166,7 +173,7 @@ export function ReservationModal({
 
     return (
         <Dialog open={true} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[800px] sm:h-[400px] bg-gray-800 text-white flex flex-col">
+            <DialogContent className="sm:max-w-[825px] sm:h-[400px] bg-gray-800 text-white flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="text-3xl font-bold">
                         Reserve {printer.name}
@@ -193,21 +200,49 @@ export function ReservationModal({
                         )}
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-5">
                         <div className="flex items-center justify-between">
                             <Clock className="w-8 h-8 text-green-400" />
                             <span className="text-2xl font-medium text-green-400">
                                 {formatTimeDisplay(minutes)}
                             </span>
                         </div>
-                        <Slider
-                            min={1}
-                            max={maxSteps}
-                            step={1}
-                            value={[sliderValue]}
-                            onValueChange={handleSliderChange}
-                            className="[&_[role=slider]]:bg-green-400 [&_[role=slider]]:h-10 [&_[role=slider]]:w-10"
-                        />
+                        <Button
+                            onClick={() => handleSliderChange(-60)}
+                            className="px-8 py-6 text-lg text-red-400 border-red-400 hover:bg-red-400 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-red-400"
+                        >
+                            -1 hour
+                        </Button>
+                        <Button
+                            onClick={() => handleSliderChange(-30)}
+                            className="px-8 py-6 text-lg text-red-400 border-red-400 hover:bg-red-400 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-red-400"
+                        >
+                            -30 mins
+                        </Button>
+                        <Button
+                            onClick={() => handleSliderChange(-15)}
+                            className="px-8 py-6 text-lg text-red-400 border-red-400 hover:bg-red-400 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-red-400"
+                        >
+                            -15 mins
+                        </Button>
+                        <Button
+                            onClick={() => handleSliderChange(15)}
+                            className="px-8 py-6 text-lg text-green-400 border-green-400 hover:bg-green-400 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-green-400"
+                        >
+                            15 mins
+                        </Button>
+                        <Button
+                            onClick={() => handleSliderChange(30)}
+                            className="px-8 py-6 text-lg text-green-400 border-green-400 hover:bg-green-400 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-green-400"
+                        >
+                            30 mins
+                        </Button>
+                        <Button
+                            onClick={() => handleSliderChange(60)}
+                            className="px-8 py-6 text-lg text-green-400 border-green-400 hover:bg-green-400 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-green-400"
+                        >
+                            1 hour
+                        </Button>
                     </div>
                 </div>
 
@@ -233,8 +268,8 @@ export function ReservationModal({
                             {isInsufficient
                                 ? "Insufficient time"
                                 : isPending
-                                ? "Reserving..."
-                                : "Reserve"}
+                                    ? "Reserving..."
+                                    : "Reserve"}
                         </Button>
                     </div>
                 </DialogFooter>
