@@ -62,6 +62,19 @@ export async function setExecutiveAccess(userId: number): Promise<boolean> {
     }
 }
 
+export async function deleteUser(userId: number): Promise<boolean> {
+    try {
+        const response = await api.delete<{ success: boolean }>(
+            `/admin/users/delete/${userId}`
+        );
+
+        return response.data.success;
+    } catch (error) {
+        console.error("Error deleting user");
+        throw new Error("Failed to delete user. Try again.");
+    }
+}
+
 export async function setAdmin(userId: number): Promise<boolean> {
     try {
         const response = await api.put<{ success: boolean }>(

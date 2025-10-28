@@ -3,6 +3,7 @@ import {
     getUserById,
     getUserData,
     setAdmin,
+    deleteUser,
     setBanTime,
     setExecutiveAccess,
     setTrained,
@@ -25,6 +26,7 @@ import {
     ChevronUp,
     Cog,
     Crown,
+    X,
     LoaderCircle,
     MoreHorizontal,
     Shield,
@@ -234,6 +236,18 @@ function UpdateUserModalContent({user, isLoading, refetchUsers, queryError, card
             },
         });
 
+    const { isPending: deletePending, mutate: setUserDeleted } = useMutation({
+        mutationFn: () => deleteUser(user.id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["users"] });
+            refetchUsers();
+            showSuccessToast("Success", "User deleted successfully");
+        },
+        onError: (error) => {
+            handleMutationError(error);
+        },
+    });
+
     const { isPending: adminPending, mutate: setUserAdmin } =
         useMutation({
             mutationFn: () => setAdmin(user.id),
@@ -332,6 +346,12 @@ function UpdateUserModalContent({user, isLoading, refetchUsers, queryError, card
         console.log("Update user info:", user?.id);
         setUserExecutive();
     };
+
+    const handleDeleteUser = () => {
+        console.log("Delete user:", user?.id);
+        setUserDeleted();
+        refetchUsers();
+    }
 
     const handleAdmin = () => {
         console.log("Update user info:", user?.id);
@@ -661,6 +681,19 @@ function UpdateUserModalContent({user, isLoading, refetchUsers, queryError, card
                                                             <span>
                                                                 Grant Executive
                                                                 Access
+                                                            </span>
+                                                        </DropdownMenuItem>
+
+
+                                                        <DropdownMenuItem
+                                                            onClick={
+                                                                handleDeleteUser
+                                                            }
+                                                            className="text-white hover:bg-gray-700 cursor-pointer py-4 px-4 text-lg"
+                                                        >
+                                                            <X className="mr-3 h-6 w-6 text-red-500" />
+                                                            <span>
+                                                                Delete User
                                                             </span>
                                                         </DropdownMenuItem>
 
